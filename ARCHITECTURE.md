@@ -8,6 +8,11 @@ This document details the architectural design, system workflow, technology stac
 
 The system follows a lightweight **Decoupled Client-Server Architecture** optimized for high performance, low latency, and zero-client-bundle footprint.
 
+![System Architecture Diagram](./assets/system_architecture.svg)
+
+<details>
+<summary><b>🔍 View Raw Mermaid Code</b></summary>
+
 ```mermaid
 flowchart TD
     subgraph Client ["Client Browser (UI Layer)"]
@@ -37,12 +42,18 @@ flowchart TD
     UI --> State
     State -->|Instant Re-calculation| UI
 ```
+</details>
 
 ---
 
 ## 🧬 Component Architecture & Sequence Flow
 
 ### 1. Range & Video Duration Processing Sequence
+
+![Sequence Flow Diagram](./assets/sequence_flow.svg)
+
+<details>
+<summary><b>🔍 View Raw Mermaid Code</b></summary>
 
 ```mermaid
 sequenceDiagram
@@ -75,6 +86,7 @@ sequenceDiagram
     Frontend->>Frontend: Compute Playback Speeds (1.0x, 1.25x, 1.5x, 1.75x, 2.0x)
     Frontend->>User: Render Visual Results, Speed Cards, & Interactive List
 ```
+</details>
 
 ---
 

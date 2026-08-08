@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" width="100%" height="100%" style="background-color: #0f111a; font-family: 'Inter', system-ui, -apple-system, sans-serif;">
+  <defs>
+    <linearGradient id="seqBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e1e2e" />
+      <stop offset="100%" stop-color="#11111b" />
+    </linearGradient>
+    <filter id="shadow2" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+    <marker id="arrowHead" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#f472b6" />
+    </marker>
+    <marker id="arrowHeadBlue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#60a5fa" />
+    </marker>
+    <marker id="arrowHeadGreen" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#34d399" />
+    </marker>
+  </defs>
+
+  <!-- Header -->
+  <text x="450" y="38" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="700">
+    Range &amp; Video Duration Processing Sequence
+  </text>
+
+  <!-- Actors Header Cards -->
+  <!-- Actor 1: User -->
+  <rect x="50" y="70" width="130" height="40" rx="8" fill="#f43f5e" fill-opacity="0.2" stroke="#f43f5e" stroke-width="1.5" />
+  <text x="115" y="95" text-anchor="middle" fill="#fb7185" font-size="13" font-weight="700">👤 User</text>
+  <line x1="115" y1="110" x2="115" y2="510" stroke="#334155" stroke-width="1.5" stroke-dasharray="4 4" />
+
+  <!-- Actor 2: Frontend UI -->
+  <rect x="250" y="70" width="150" height="40" rx="8" fill="#ec4899" fill-opacity="0.2" stroke="#ec4899" stroke-width="1.5" />
+  <text x="325" y="95" text-anchor="middle" fill="#f472b6" font-size="13" font-weight="700">💻 Frontend UI (JS)</text>
+  <line x1="325" y1="110" x2="325" y2="510" stroke="#334155" stroke-width="1.5" stroke-dasharray="4 4" />
+
+  <!-- Actor 3: Flask Backend -->
+  <rect x="475" y="70" width="150" height="40" rx="8" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="1.5" />
+  <text x="550" y="95" text-anchor="middle" fill="#60a5fa" font-size="13" font-weight="700">⚙️ Flask Backend</text>
+  <line x1="550" y1="110" x2="550" y2="510" stroke="#334155" stroke-width="1.5" stroke-dasharray="4 4" />
+
+  <!-- Actor 4: yt-dlp & YouTube API -->
+  <rect x="700" y="70" width="150" height="40" rx="8" fill="#10b981" fill-opacity="0.2" stroke="#10b981" stroke-width="1.5" />
+  <text x="775" y="95" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">🔍 yt-dlp / YouTube</text>
+  <line x1="775" y1="110" x2="775" y2="510" stroke="#334155" stroke-width="1.5" stroke-dasharray="4 4" />
+
+  <!-- Step 1 -->
+  <path d="M 115 140 L 325 140" stroke="#f472b6" stroke-width="2" marker-end="url(#arrowHead)" />
+  <rect x="135" y="125" width="170" height="22" rx="4" fill="#1e293b" />
+  <text x="220" y="140" text-anchor="middle" fill="#f472b6" font-size="11" font-weight="600">1. Input Playlist URL &amp; Tags</text>
+
+  <!-- Step 2 -->
+  <path d="M 325 180 L 550 180" stroke="#60a5fa" stroke-width="2" marker-end="url(#arrowHeadBlue)" />
+  <rect x="345" y="165" width="180" height="22" rx="4" fill="#1e293b" />
+  <text x="435" y="180" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">2. POST /api/calculate</text>
+
+  <!-- Step 3 -->
+  <path d="M 550 220 L 775 220" stroke="#34d399" stroke-width="2" marker-end="url(#arrowHeadGreen)" />
+  <rect x="570" y="205" width="185" height="22" rx="4" fill="#1e293b" />
+  <text x="662" y="220" text-anchor="middle" fill="#34d399" font-size="11" font-weight="600">3. Flat Scrape Playlist Metadata</text>
+
+  <!-- Step 4 -->
+  <path d="M 775 260 L 550 260" stroke="#34d399" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#arrowHeadBlue)" />
+  <rect x="580" y="245" width="165" height="22" rx="4" fill="#1e293b" />
+  <text x="662" y="260" text-anchor="middle" fill="#34d399" font-size="11">4. Return Video Titles &amp; Durations</text>
+
+  <!-- Step 5 (Internal Box) -->
+  <rect x="495" y="295" width="110" height="45" rx="6" fill="#1d4ed8" fill-opacity="0.3" stroke="#3b82f6" stroke-width="1" />
+  <text x="550" y="315" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="600">5. Calculate Slice</text>
+  <text x="550" y="330" text-anchor="middle" fill="#93c5fd" font-size="9">V[min(A,B) : max(A,B)+1]</text>
+
+  <!-- Step 6 -->
+  <path d="M 550 370 L 325 370" stroke="#60a5fa" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#arrowHead)" />
+  <rect x="345" y="355" width="180" height="22" rx="4" fill="#1e293b" />
+  <text x="435" y="370" text-anchor="middle" fill="#60a5fa" font-size="11">6. Return Structured JSON Result</text>
+
+  <!-- Step 7 (Frontend computation) -->
+  <rect x="270" y="405" width="110" height="45" rx="6" fill="#be185d" fill-opacity="0.3" stroke="#ec4899" stroke-width="1" />
+  <text x="325" y="425" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="600">7. Speed Multipliers</text>
+  <text x="325" y="440" text-anchor="middle" fill="#f472b6" font-size="9">Compute 1.25x - 2.0x Cards</text>
+
+  <!-- Step 8 -->
+  <path d="M 325 480 L 115 480" stroke="#f472b6" stroke-width="2" marker-end="url(#arrowHead)" />
+  <rect x="140" y="465" width="160" height="22" rx="4" fill="#1e293b" />
+  <text x="220" y="480" text-anchor="middle" fill="#f472b6" font-size="11" font-weight="600">8. Render Visual Analytics</text>
+
+</svg>
