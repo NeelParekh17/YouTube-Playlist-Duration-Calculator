@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>YouTube Playlist Duration Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--surface:#13131a;--card:#1a1a25;--border:#2a2a3d;
+  --accent:#ff0050;--accent2:#7c3aed;--accent3:#06b6d4;
+  --text:#f0f0f8;--muted:#8888aa;--success:#10b981;--warn:#f59e0b;--red:#ef4444;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%,rgba(124,58,237,.18) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%,rgba(255,0,80,.12) 0%,transparent 60%);
+}
+.container{max-width:860px;margin:0 auto;padding:40px 20px;position:relative;z-index:1;}
+
+/* ── Header ── */
+header{text-align:center;margin-bottom:48px;}
+.logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;}
+.logo-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 32px rgba(255,0,80,.4);}
+header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;background:linear-gradient(90deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+header p{color:var(--muted);margin-top:8px;font-size:.95rem;}
+
+/* ── Card ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;margin-bottom:24px;}
+
+/* ── Form ── */
+.form-group{margin-bottom:22px;}
+label{display:block;font-size:.82rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+input[type=text], input[type=number]{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;color:var(--text);font-size:.95rem;font-family:inherit;outline:none;transition:border-color .25s,box-shadow .25s;}
+input[type=text]:focus, input[type=number]:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(124,58,237,.2);}
+.hint{font-size:.78rem;color:var(--muted);margin-top:6px;line-height:1.5;}
+
+/* ── Mode toggle ── */
+.mode-row{display:flex;gap:8px;margin-bottom:22px;}
+.mode-btn{flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;}
+.mode-btn.active{border-color:var(--accent2);background:rgba(124,58,237,.15);color:var(--text);}
+.mode-btn:hover:not(.active){border-color:var(--accent2);color:var(--text);}
+
+/* ── Tags input ── */
+.tags-area{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;min-height:70px;cursor:text;transition:border-color .25s,box-shadow .25s;}
+.tags-area:focus-within{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(124,58,237,.2);}
+.tags-wrap{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.tag{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;font-size:.83rem;color:var(--text);animation:tagIn .2s ease;}
+.tag.title-tag{background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(255,0,80,.15));border:1px solid rgba(124,58,237,.4);}
+.tag.url-tag{background:linear-gradient(135deg,rgba(6,182,212,.2),rgba(16,185,129,.15));border:1px solid rgba(6,182,212,.4);}
+@keyframes tagIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.tag-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;line-height:1;padding:0;transition:color .2s;}
+.tag-del:hover{color:var(--red);}
+.tag-input-inner{border:none;outline:none;background:transparent;color:var(--text);font-size:.92rem;font-family:inherit;min-width:200px;flex:1;}
+
+/* ── Range hint banner ── */
+.range-hint{display:none;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.25);border-radius:10px;padding:10px 14px;font-size:.82rem;color:var(--accent3);margin-bottom:16px;line-height:1.5;}
+.range-hint.show{display:block;}
+
+/* ── Button ── */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:12px;color:#fff;font-size:1rem;font-weight:600;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 24px rgba(255,0,80,.35);width:100%;justify-content:center;}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 32px rgba(255,0,80,.45);}
+.btn:disabled{opacity:.55;cursor:not-allowed;}
+.btn-spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.btn.loading .btn-spinner{display:block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Alert ── */
+.alert{padding:14px 16px;border-radius:12px;font-size:.88rem;margin-bottom:16px;display:none;}
+.alert.error{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;display:block;}
+.alert.warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#fcd34d;display:block;}
+
+/* ── Loading ── */
+#loading-state{display:none;text-align:center;padding:40px 0;}
+.loader-ring{width:56px;height:56px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+.loader-msg{color:var(--muted);font-size:.9rem;}
+
+/* ── Results ── */
+#results{display:none;}
+
+/* Range breadcrumb */
+.range-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:10px;padding:8px 14px;font-size:.82rem;color:var(--accent3);margin-bottom:20px;}
+.range-arrow{opacity:.6;}
+
+.result-hero{text-align:center;padding:28px 0 20px;}
+.big-time{font-size:clamp(2.4rem,8vw,4rem);font-weight:800;background:linear-gradient(90deg,var(--accent3),var(--accent2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;}
+.result-sub{color:var(--muted);margin-top:8px;font-size:.92rem;}
+.saved-time-badge{display:inline-block;margin-top:10px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:var(--success);padding:4px 14px;border-radius:20px;font-size:.84rem;font-weight:600;}
+
+/* ── Speed Selector Controls ── */
+.speed-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin:24px 0 12px;}
+.speed-pill{padding:8px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.speed-pill:hover{border-color:var(--accent3);color:var(--text);}
+.speed-pill.active{border-color:var(--accent3);background:rgba(6,182,212,.15);color:var(--accent3);box-shadow:0 0 16px rgba(6,182,212,.25);}
+
+.custom-speed-wrap{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:4px 10px;}
+.custom-speed-wrap input{width:54px;padding:4px;border:none;background:transparent;color:var(--text);font-size:.85rem;font-weight:600;text-align:center;}
+.custom-speed-wrap input:focus{box-shadow:none;}
+
+/* ── Speed Comparison Grid ── */
+.speed-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0 24px;}
+.speed-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center;transition:all .2s;cursor:pointer;}
+.speed-card:hover{border-color:var(--accent2);transform:translateY(-2px);}
+.speed-card.active{border-color:var(--accent3);background:rgba(6,182,212,.08);}
+.speed-card-title{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.speed-card-time{font-size:1.15rem;font-weight:700;color:var(--text);margin:6px 0 4px;}
+.speed-card-saved{font-size:.72rem;color:var(--success);font-weight:600;}
+
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:20px 0;}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;}
+.stat-val{font-size:1.6rem;font-weight:700;}
+.stat-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:4px;}
+
+.section-title{font-size:.82rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:22px 0 10px;}
+
+/* Video list */
+.video-list{display:flex;flex-direction:column;gap:6px;max-height:480px;overflow-y:auto;padding-right:4px;}
+.video-list::-webkit-scrollbar{width:4px;}
+.video-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.video-item{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:10px 14px;text-decoration:none;color:var(--text);transition:border-color .2s,transform .15s;animation:fadeUp .3s ease both;}
+.video-item:hover{border-color:var(--accent2);transform:translateX(4px);}
+.video-item.range-edge{border-color:rgba(6,182,212,.4);background:rgba(6,182,212,.05);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.vid-num{font-size:.72rem;color:var(--muted);min-width:28px;text-align:right;font-weight:600;}
+.vid-title{flex:1;font-size:.87rem;font-weight:500;line-height:1.35;}
+.vid-dur{font-size:.78rem;color:var(--accent3);font-weight:600;white-space:nowrap;background:rgba(6,182,212,.1);padding:3px 10px;border-radius:20px;}
+
+/* Not found */
+.not-found-list{display:flex;flex-wrap:wrap;gap:8px;}
+.not-found-tag{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:var(--red);border-radius:20px;padding:4px 14px;font-size:.83rem;}
+
+@media(max-width:500px){.card{padding:20px 14px;}.stats-row,.speed-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo"><div class="logo-icon">▶</div></div>
+    <h1>Playlist Duration Calculator</h1>
+    <p>Calculate watch time for any range or selection of videos in a YouTube playlist</p>
+  </header>
+
+  <div class="card">
+    <!-- Playlist URL -->
+    <div class="form-group">
+      <label for="playlist-url">Playlist URL</label>
+      <input type="text" id="playlist-url"
+        placeholder="https://www.youtube.com/playlist?list=..."
+        value="https://www.youtube.com/playlist?list=PLgUwDviBIf0oF6QL8m22w1hIDC1vJ_BHz"/>
+    </div>
+
+    <!-- Mode selector -->
+    <div class="form-group">
+      <label>Selection Mode</label>
+      <div class="mode-row">
+        <div class="mode-btn active" id="mode-range" onclick="setMode('range')">
+          📏 Range &nbsp;<small style="opacity:.6">(between 2 videos)</small>
+        </div>
+        <div class="mode-btn" id="mode-individual" onclick="setMode('individual')">
+          🎯 Individual &nbsp;<small style="opacity:.6">(pick specific videos)</small>
+        </div>
+        <div class="mode-btn" id="mode-full" onclick="setMode('full')">
+          📋 Full Playlist
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic hint -->
+    <div class="range-hint show" id="mode-hint">
+      📏 <strong>Range mode:</strong> Enter exactly <strong>2</strong> video titles or paste their YouTube URLs. All videos <em>between</em> them (inclusive) will be summed.
+    </div>
+
+    <!-- Video inputs -->
+    <div class="form-group" id="inputs-section">
+      <label>Video Titles or YouTube URLs</label>
+      <div class="tags-area" id="tags-area">
+        <div class="tags-wrap" id="tags-wrap">
+          <input class="tag-input-inner" id="tag-input" type="text"
+            placeholder="Paste a URL or type a title, then press Enter…"/>
+        </div>
+      </div>
+      <div class="hint" id="input-hint">
+        Press <kbd style="background:var(--border);padding:1px 6px;border-radius:4px;font-size:.75rem">Enter</kbd> after each entry.
+        Accepts: partial titles <em>or</em> full YouTube video URLs.
+      </div>
+    </div>
+
+    <div id="alert-box" class="alert" style="display:none"></div>
+
+    <button class="btn" id="calc-btn" onclick="calculate()">
+      <div class="btn-spinner"></div>
+      <span class="btn-text">⏱ Calculate Duration</span>
+    </button>
+  </div>
+
+  <div id="loading-state">
+    <div class="loader-ring"></div>
+    <div class="loader-msg" id="loading-msg">Fetching playlist data…</div>
+  </div>
+
+  <div id="results">
+    <div class="card">
+      <!-- Range breadcrumb -->
+      <div id="range-breadcrumb" class="range-badge" style="display:none">
+        <span id="range-from"></span>
+        <span class="range-arrow">→</span>
+        <span id="range-to"></span>
+      </div>
+
+      <!-- Playback Speed Selector Pills -->
+      <div class="section-title" style="text-align:center;margin-top:0;">Playback Speed</div>
+      <div class="speed-bar">
+        <div class="speed-pill active" id="sp-1" onclick="setSpeed(1.0)">1x (Normal)</div>
+        <div class="speed-pill" id="sp-1.25" onclick="setSpeed(1.25)">1.25x</div>
+        <div class="speed-pill" id="sp-1.5" onclick="setSpeed(1.5)">1.5x</div>
+        <div class="speed-pill" id="sp-1.75" onclick="setSpeed(1.75)">1.75x</div>
+        <div class="speed-pill" id="sp-2" onclick="setSpeed(2.0)">2x</div>
+        <div class="custom-speed-wrap">
+          <input type="number" id="custom-speed-input" step="0.05" min="0.25" max="4.0" placeholder="Custom" oninput="onCustomSpeedChange(this.value)"/>
+          <span style="font-size:.8rem;color:var(--muted);font-weight:600;">x</span>
+        </div>
+      </div>
+
+      <div class="result-hero">
+        <div class="big-time" id="big-time">0h 0m 0s</div>
+        <div class="result-sub" id="result-sub"></div>
+        <div id="saved-time-container" style="display:none;">
+          <div class="saved-time-badge" id="saved-time-badge">⚡ Saves 0h 0m 0s</div>
+        </div>
+      </div>
+
+      <!-- Speed Comparison Grid -->
+      <div class="section-title">Speed Comparison Breakdown</div>
+      <div class="speed-grid">
+        <div class="speed-card" id="card-sp-1" onclick="setSpeed(1.0)">
+          <div class="speed-card-title">1x Speed</div>
+          <div class="speed-card-time" id="grid-sp-1">0m 0s</div>
+          <div class="speed-card-saved" style="color:var(--muted)">Baseline</div>
+        </div>
+        <div class="speed-card" id="card-sp-1.25" onclick="setSpeed(1.25)">
+          <div class="speed-card-title">1.25x Speed</div>
+          <div class="speed-card-time" id="grid-sp-1.25">0m 0s</div>
+          <div class="speed-card-saved" id="saved-sp-1.25">Saves 0m</div>
+        </div>
+        <div class="speed-card" id="card-sp-1.5" onclick="setSpeed(1.5)">
+          <div class="speed-card-title">1.5x Speed</div>
+          <div class="speed-card-time" id="grid-sp-1.5">0m 0s</div>
+          <div class="speed-card-saved" id="saved-sp-1.5">Saves 0m</div>
+        </div>
+        <div class="speed-card" id="card-sp-1.75" onclick="setSpeed(1.75)">
+          <div class="speed-card-title">1.75x Speed</div>
+          <div class="speed-card-time" id="grid-sp-1.75">0m 0s</div>
+          <div class="speed-card-saved" id="saved-sp-1.75">Saves 0m</div>
+        </div>
+        <div class="speed-card" id="card-sp-2" onclick="setSpeed(2.0)">
+          <div class="speed-card-title">2x Speed</div>
+          <div class="speed-card-time" id="grid-sp-2">0m 0s</div>
+          <div class="speed-card-saved" id="saved-sp-2">Saves 0m</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-val" id="stat-hours">0</div><div class="stat-label">Hours</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-minutes">0</div><div class="stat-label">Minutes</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-seconds">0</div><div class="stat-label">Seconds</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-videos">0</div><div class="stat-label">Videos</div></div>
+      </div>
+
+      <div id="not-found-section" style="display:none">
+        <div class="section-title" style="color:var(--red)">⚠ Not Found</div>
+        <div class="not-found-list" id="not-found-list"></div>
+      </div>
+
+      <div class="section-title" id="videos-label">Videos</div>
+      <div class="video-list" id="video-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────
+let tags = [];   // { raw: string, type: "url"|"title" }
+let currentMode = "range";
+let currentSpeed = 1.0;
+let currentTotalSeconds = 0;
+let lastResultData = null;
+
+// ─── Mode ─────────────────────────────────────────────────────────────────
+const modeHints = {
+  range:      "📏 <strong>Range mode:</strong> Enter exactly <strong>2</strong> video titles or paste their YouTube URLs. All videos <em>between</em> them (inclusive) will be summed.",
+  individual: "🎯 <strong>Individual mode:</strong> Add one or more titles/URLs. Only those specific videos will be summed.",
+  full:       "📋 <strong>Full playlist:</strong> No input needed — calculates the total duration of every video in the playlist.",
+};
+
+function setMode(m) {
+  currentMode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('mode-' + m).classList.add('active');
+  document.getElementById('mode-hint').innerHTML = modeHints[m];
+  document.getElementById('inputs-section').style.display = m === 'full' ? 'none' : '';
+  clearAlert();
+}
+
+// ─── Tags ─────────────────────────────────────────────────────────────────
+const tagInput = document.getElementById('tag-input');
+const tagsWrap = document.getElementById('tags-wrap');
+const tagsArea = document.getElementById('tags-area');
+
+tagsArea.addEventListener('click', () => tagInput.focus());
+
+tagInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && tagInput.value.trim()) {
+    e.preventDefault();
+    addTag(tagInput.value.trim());
+    tagInput.value = '';
+  }
+  if (e.key === 'Backspace' && !tagInput.value && tags.length) {
+    removeTagAt(tags.length - 1);
+  }
+});
+
+tagInput.addEventListener('paste', e => {
+  e.preventDefault();
+  const text = e.clipboardData.getData('text');
+  const parts = text.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+  if (parts.length > 1) { parts.forEach(addTag); }
+  else {
+    tagInput.value = text.trim();
+    if (isYouTubeUrl(text.trim())) { addTag(text.trim()); tagInput.value = ''; }
+  }
+});
+
+function isYouTubeUrl(s) {
+  return /youtu(\.be|be\.com)/.test(s);
+}
+
+function detectType(raw) {
+  return isYouTubeUrl(raw) ? 'url' : 'title';
+}
+
+function addTag(raw) {
+  if (!raw) return;
+  if (tags.find(t => t.raw === raw)) return;
+  const type = detectType(raw);
+  tags.push({ raw, type });
+  renderTags();
+}
+
+function removeTagAt(i) {
+  tags.splice(i, 1);
+  renderTags();
+}
+
+function renderTags() {
+  tagsWrap.querySelectorAll('.tag').forEach(el => el.remove());
+  tags.forEach((t, i) => {
+    const el = document.createElement('div');
+    el.className = 'tag ' + (t.type === 'url' ? 'url-tag' : 'title-tag');
+    const label = t.type === 'url'
+      ? '🔗 ' + shortenUrl(t.raw)
+      : t.raw;
+    el.innerHTML = `<span>${escHtml(label)}</span><button class="tag-del" onclick="removeTagAt(${i});renderTags()">×</button>`;
+    tagsWrap.insertBefore(el, tagInput);
+  });
+}
+
+function shortenUrl(url) {
+  try {
+    const u = new URL(url);
+    const v = u.searchParams.get('v') || u.pathname.split('/').pop();
+    return `youtube.com/watch?v=${v}`;
+  } catch { return url.slice(0, 40) + '…'; }
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Pre-populate demo for range mode
+addTag('L1. Introduction to Trees | Types of Trees');
+addTag('L53. Largest BST in Binary Tree');
+
+// ─── Playback Speed Handler ────────────────────────────────────────────────
+function setSpeed(spd) {
+  currentSpeed = parseFloat(spd) || 1.0;
+  
+  // Highlight pills
+  document.querySelectorAll('.speed-pill').forEach(p => p.classList.remove('active'));
+  const presetPill = document.getElementById('sp-' + currentSpeed);
+  if (presetPill) {
+    presetPill.classList.add('active');
+    document.getElementById('custom-speed-input').value = '';
+  }
+
+  // Highlight grid cards
+  document.querySelectorAll('.speed-card').forEach(c => c.classList.remove('active'));
+  const activeCard = document.getElementById('card-sp-' + currentSpeed);
+  if (activeCard) activeCard.classList.add('active');
+
+  updateDisplayForSpeed();
+}
+
+function onCustomSpeedChange(val) {
+  const spd = parseFloat(val);
+  if (spd && spd > 0) {
+    document.querySelectorAll('.speed-pill').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.speed-card').forEach(c => c.classList.remove('active'));
+    currentSpeed = spd;
+    updateDisplayForSpeed();
+  }
+}
+
+function updateDisplayForSpeed() {
+  if (!currentTotalSeconds) return;
+
+  const adjustedSeconds = Math.round(currentTotalSeconds / currentSpeed);
+  const parts = parseSeconds(adjustedSeconds);
+
+  document.getElementById('big-time').textContent = parts.formatted;
+  document.getElementById('stat-hours').textContent = parts.hours;
+  document.getElementById('stat-minutes').textContent = parts.minutes;
+  document.getElementById('stat-seconds').textContent = parts.seconds;
+
+  // Time saved badge
+  const savedContainer = document.getElementById('saved-time-container');
+  const savedBadge = document.getElementById('saved-time-badge');
+  if (currentSpeed > 1.0) {
+    const savedSec = Math.max(0, currentTotalSeconds - adjustedSeconds);
+    const savedParts = parseSeconds(savedSec);
+    savedBadge.textContent = `⚡ Saves ${savedParts.formatted} at ${currentSpeed}x speed!`;
+    savedContainer.style.display = 'block';
+  } else {
+    savedContainer.style.display = 'none';
+  }
+
+  // Sub text
+  if (lastResultData) {
+    const baseSub = {
+      full_playlist: `Full playlist · ${lastResultData.playlist_total_videos} videos`,
+      range:         `${lastResultData.selected_count} videos in range · out of ${lastResultData.playlist_total_videos} total`,
+      individual:    `${lastResultData.selected_count} of ${lastResultData.playlist_total_videos} videos selected`,
+    }[lastResultData.mode] || '';
+    const speedSub = currentSpeed !== 1.0 ? ` (at ${currentSpeed}x speed)` : '';
+    document.getElementById('result-sub').textContent = baseSub + speedSub;
+  }
+}
+
+function updateSpeedBreakdownGrid(baseSeconds) {
+  const speeds = [1.0, 1.25, 1.5, 1.75, 2.0];
+  speeds.forEach(sp => {
+    const spSec = Math.round(baseSeconds / sp);
+    const p = parseSeconds(spSec);
+    const timeEl = document.getElementById(`grid-sp-${sp}`);
+    if (timeEl) timeEl.textContent = p.formatted;
+
+    const savedEl = document.getElementById(`saved-sp-${sp}`);
+    if (savedEl && sp > 1.0) {
+      const savedSec = Math.max(0, baseSeconds - spSec);
+      const savedP = parseSeconds(savedSec);
+      savedEl.textContent = `Saves ${savedP.formatted}`;
+    }
+  });
+}
+
+function parseSeconds(total_seconds) {
+  const hours = Math.floor(total_seconds / 3600);
+  const minutes = Math.floor((total_seconds % 3600) / 60);
+  const seconds = total_seconds % 60;
+  const parts = [];
+  if (hours) parts.append ? parts.push(`${hours}h`) : parts.push(`${hours}h`);
+  if (minutes) parts.push(`${minutes}m`);
+  parts.push(`${seconds}s`);
+  return {
+    hours,
+    minutes,
+    seconds,
+    formatted: parts.join(' '),
+    total_seconds
+  };
+}
+
+// ─── Calculate ────────────────────────────────────────────────────────────
+async function calculate() {
+  clearAlert();
+  const url = document.getElementById('playlist-url').value.trim();
+
+  if (!url) { showAlert('Please enter a playlist URL.', 'error'); return; }
+
+  if (currentMode === 'range' && tags.length !== 2) {
+    showAlert('Range mode requires exactly 2 video titles or URLs.', 'error'); return;
+  }
+  if (currentMode === 'individual' && tags.length === 0) {
+    showAlert('Individual mode requires at least 1 title or URL.', 'error'); return;
+  }
+
+  const btn = document.getElementById('calc-btn');
+  const loading = document.getElementById('loading-state');
+  btn.disabled = true; btn.classList.add('loading');
+  loading.style.display = 'block';
+  document.getElementById('results').style.display = 'none';
+
+  const msgs = ['Fetching playlist data…','Extracting video metadata…','Calculating durations…'];
+  let mi = 0;
+  const msgEl = document.getElementById('loading-msg');
+  const ticker = setInterval(() => { msgEl.textContent = msgs[mi++ % msgs.length]; }, 2200);
+
+  const inputs = currentMode === 'full' ? [] : tags.map(t => t.raw);
+  const modeParam = currentMode === 'full' ? 'auto' : currentMode;
+
+  try {
+    const res = await fetch('/api/calculate', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ playlist_url: url, inputs, mode: modeParam })
+    });
+    const data = await res.json();
+    clearInterval(ticker);
+    if (!res.ok || data.error) { showAlert(data.error || 'Unknown error', 'error'); return; }
+    renderResults(data);
+  } catch(err) {
+    clearInterval(ticker);
+    showAlert('Network error: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false; btn.classList.remove('loading');
+    loading.style.display = 'none';
+  }
+}
+
+function renderResults(data) {
+  lastResultData = data;
+  currentTotalSeconds = data.duration.total_seconds;
+  document.getElementById('stat-videos').textContent  = data.selected_count;
+
+  // Breadcrumb for range
+  const bc = document.getElementById('range-breadcrumb');
+  if (data.mode === 'range' && data.range_start && data.range_end) {
+    document.getElementById('range-from').textContent = data.range_start;
+    document.getElementById('range-to').textContent   = data.range_end;
+    bc.style.display = 'inline-flex';
+  } else {
+    bc.style.display = 'none';
+  }
+
+  // Speed Comparison Grid Update
+  updateSpeedBreakdownGrid(currentTotalSeconds);
+
+  // Update primary hero display based on selected speed
+  updateDisplayForSpeed();
+
+  // Section label
+  document.getElementById('videos-label').textContent =
+    data.mode === 'range' ? `Videos in Range (${data.selected_count})` :
+    data.mode === 'full_playlist' ? `All Videos (${data.selected_count})` :
+    `Selected Videos (${data.selected_count})`;
+
+  // Not found
+  const nfSec = document.getElementById('not-found-section');
+  const nfList = document.getElementById('not-found-list');
+  nfList.innerHTML = '';
+  if (data.not_found && data.not_found.length) {
+    data.not_found.forEach(t => {
+      const el = document.createElement('div');
+      el.className = 'not-found-tag';
+      el.textContent = t;
+      nfList.appendChild(el);
+    });
+    nfSec.style.display = 'block';
+  } else { nfSec.style.display = 'none'; }
+
+  // Video list
+  const list = document.getElementById('video-list');
+  list.innerHTML = '';
+  const edgeIds = new Set();
+  if (data.mode === 'range' && data.selected_videos.length >= 2) {
+    edgeIds.add(data.selected_videos[0].id);
+    edgeIds.add(data.selected_videos[data.selected_videos.length - 1].id);
+  }
+  data.selected_videos.forEach((v, i) => {
+    const a = document.createElement('a');
+    a.className = 'video-item' + (edgeIds.has(v.id) ? ' range-edge' : '');
+    a.href = v.url; a.target = '_blank'; a.rel = 'noopener';
+    a.style.animationDelay = Math.min(i, 30) * 0.03 + 's';
+    a.innerHTML = `
+      <div class="vid-num">${i + 1}</div>
+      <div class="vid-title">${escHtml(v.title)}</div>
+      <div class="vid-dur">${fmtSec(v.duration)}</div>`;
+    list.appendChild(a);
+  });
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function fmtSec(s) {
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  if (h) return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  return `${m}:${String(sec).padStart(2,'0')}`;
+}
+
+function showAlert(msg, type) {
+  const el = document.getElementById('alert-box');
+  el.textContent = msg; el.className = 'alert ' + type; el.style.display = 'block';
+}
+function clearAlert() {
+  const el = document.getElementById('alert-box'); el.style.display = 'none';
+}
+
+document.getElementById('playlist-url').addEventListener('keydown', e => {
+  if (e.key === 'Enter') calculate();
+});
+</script>
+</body>
+</html>
