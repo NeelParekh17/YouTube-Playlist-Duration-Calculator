@@ -7,11 +7,13 @@ A sleek, fast, and feature-rich web application to calculate the total watch tim
 
 ---
 
-## 🌐 Live Web Application
+## 🌐 Live Web Application & Documentation
 
-👉 **[https://youtube-playlist-duration-calculator-518d.onrender.com/](https://youtube-playlist-duration-calculator-518d.onrender.com/)**
+- 🚀 **Live App**: [https://youtube-playlist-duration-calculator-518d.onrender.com/](https://youtube-playlist-duration-calculator-518d.onrender.com/)
+- 🏗️ **Architecture Document**: [ARCHITECTURE.md](./ARCHITECTURE.md)
 
 ---
+
 
 ## 🌟 Key Features
 
