@@ -1,6 +1,15 @@
 # ⏱️ YouTube Playlist Duration Calculator
 
+[![Live Web App](https://img.shields.io/badge/Live_Demo-Open_Calculator-ff0050?style=for-the-badge&logo=youtube)](https://youtube-playlist-duration-calculator.onrender.com)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-7c3aed?style=for-the-badge&logo=github)](https://github.com/NeelParekh17/YouTube-Playlist-Duration-Calculator)
+
 A sleek, fast, and feature-rich web application to calculate the total watch time of YouTube playlists, specific video selections, or custom video ranges, with real-time playback speed breakdowns (`1.25x`, `1.5x`, `1.75x`, `2.0x`, etc.).
+
+---
+
+## 🌐 Live Web Application
+
+👉 **[Click Here to Open the Live Web App](https://youtube-playlist-duration-calculator.onrender.com)**
 
 ---
 
@@ -18,71 +27,32 @@ A sleek, fast, and feature-rich web application to calculate the total watch tim
 
 ---
 
-## 🚀 Live Demo / Hosting
+## 🚀 Free Hosting Setup (Vercel / Render)
 
-### Option 1: Deploy to Render in 1-Click
-You can deploy this application for free on [Render](https://render.com) using the included `render.yaml`:
+### Option A: Render (Recommended)
+1. Go to [Render Dashboard](https://dashboard.render.com/select-repo).
+2. Connect your GitHub repository `NeelParekh17/YouTube-Playlist-Duration-Calculator`.
+3. Render automatically detects `render.yaml` and deploys your live site.
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/NeelParekh17/YouTube-Playlist-Duration-Calculator)
-
-1. Click the **Deploy to Render** button above.
-2. Sign in with GitHub.
-3. Render will automatically build and deploy your app.
+### Option B: Vercel
+1. Go to [Vercel New Project](https://vercel.com/new).
+2. Import `NeelParekh17/YouTube-Playlist-Duration-Calculator`.
+3. Vercel automatically deploys via `vercel.json`.
 
 ---
 
 ## 💻 Running Locally
 
-### Prerequisites
-- Python 3.10+
-- `pip`
-
-### Setup Instructions
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/NeelParekh17/YouTube-Playlist-Duration-Calculator.git
-   cd YouTube-Playlist-Duration-Calculator
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Run the Flask application:**
-   ```bash
-   python app.py
-   ```
-
-4. **Open in Browser:**
-   Navigate to `http://127.0.0.1:5050` in your web browser.
-
----
-
-## 📁 Project Structure
-
+```bash
+git clone https://github.com/NeelParekh17/YouTube-Playlist-Duration-Calculator.git
+cd YouTube-Playlist-Duration-Calculator
+pip install -r requirements.txt
+python app.py
 ```
-├── app.py              # Flask backend server & yt-dlp metadata extraction logic
-├── static/
-│   └── index.html      # Responsive HTML/CSS/JS frontend UI
-├── requirements.txt    # Python dependencies
-├── Procfile            # Deployment configuration (Gunicorn WSGI)
-├── render.yaml         # Render Blueprint configuration
-├── .gitignore          # Ignored files
-└── README.md           # Project documentation
-```
-
----
-
-## 🛠️ Built With
-
-- **Backend**: Python, Flask, `yt-dlp`
-- **Frontend**: HTML5, Vanilla CSS, Modern JavaScript
-- **Deployment**: Gunicorn, Render / Heroku / Koyeb
+Open `http://127.0.0.1:5050` in your web browser.
 
 ---
 
 ## 📝 License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License.
