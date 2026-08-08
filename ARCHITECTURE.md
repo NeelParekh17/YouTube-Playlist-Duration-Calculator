@@ -116,21 +116,34 @@ The engine resolves input tags dynamically:
 
 ### 3. Sub-Array Slice Algorithm for Range Calculation
 
-For a playlist of $N$ videos $V = [v_0, v_1, \dots, v_{N-1}]$:
+When a user selects **Range Mode** and provides two video inputs (by URL or title):
+1. **$i_A$**: The 0-indexed position of **Input Video A** in the YouTube playlist.
+2. **$i_B$**: The 0-indexed position of **Input Video B** in the YouTube playlist.
+
+#### Why `min(i_A, i_B)` and `max(i_A, i_B)` are required:
+Users can enter the video titles/URLs in **any order** (e.g., entering Video 53 first and Video 1 second). Taking the minimum and maximum ensures the range is order-independent and never produces a reverse or empty slice:
 
 $$
 \text{idx}_{\text{start}} = \min(i_A, i_B), \quad \text{idx}_{\text{end}} = \max(i_A, i_B)
 $$
 
 $$
-\text{Selected Subset} = V[\text{idx}_{\text{start}} : \text{idx}_{\text{end}} + 1]
+\text{Selected Sub-array} = V[\text{idx}_{\text{start}} : \text{idx}_{\text{end}} + 1]
 $$
 
 $$
-\text{Total Duration} = \sum_{k=\text{idx}_{\text{start}}}^{\text{idx}_{\text{end}}} \text{Duration}(v_k)
+\text{Total Range Duration} = \sum_{k=\text{idx}_{\text{start}}}^{\text{idx}_{\text{end}}} \text{Duration}(v_k)
 $$
 
-This guarantees that all intermediate videos are automatically included in the duration calculation with $O(N)$ index resolution complexity.
+#### 💡 Concrete Example:
+Suppose a playlist has 100 videos ($v_0, v_1, \dots, v_{99}$):
+- User enters **Tag A** = `"L53. Largest BST"` $\rightarrow$ Found at index $i_A = 52$
+- User enters **Tag B** = `"L1. Introduction"` $\rightarrow$ Found at index $i_B = 0$
+- **Start Index**: $\min(52, 0) = 0$
+- **End Index**: $\max(52, 0) = 52$
+- **Slice**: $V[0 : 53]$ $\rightarrow$ Calculates total duration for all **53 videos** (L1 through L53 inclusive).
+
+This guarantees $O(N)$ resolution complexity and order-independent range calculation.
 
 ### 4. Client-Side Real-Time Playback Speed Engine
 
