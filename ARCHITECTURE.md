@@ -115,15 +115,35 @@ The engine resolves input tags dynamically:
 - **Fuzzy Substring Search**: Performs case-insensitive substring matching against video titles (e.g. matching `"L1. Introduction"` or `"L53. Largest BST"`).
 
 ### 3. Sub-Array Slice Algorithm for Range Calculation
+
 For a playlist of $N$ videos $V = [v_0, v_1, \dots, v_{N-1}]$:
-$$\text{idx}_{\text{start}} = \min(i_A, i_B), \quad \text{idx}_{\text{end}} = \max(i_A, i_B)$$
-$$\text{Selected Subset} = V[\text{idx}_{\text{start}} : \text{idx}_{\text{end}} + 1]$$
-$$\text{Total Duration} = \sum_{k=\text{idx}_{\text{start}}}^{\text{idx}_{\text{end}}} \text{Duration}(v_k)$$
+
+$$
+\text{idx}_{\text{start}} = \min(i_A, i_B), \quad \text{idx}_{\text{end}} = \max(i_A, i_B)
+$$
+
+$$
+\text{Selected Subset} = V[\text{idx}_{\text{start}} : \text{idx}_{\text{end}} + 1]
+$$
+
+$$
+\text{Total Duration} = \sum_{k=\text{idx}_{\text{start}}}^{\text{idx}_{\text{end}}} \text{Duration}(v_k)
+$$
+
 This guarantees that all intermediate videos are automatically included in the duration calculation with $O(N)$ index resolution complexity.
 
 ### 4. Client-Side Real-Time Playback Speed Engine
+
 Instead of re-querying the backend when users toggle playback speeds (`1.25x`, `1.5x`, `1.75x`, `2.0x`), the client recalculates target durations instantaneously:
-$$T_{\text{adjusted}} = \left\lfloor \frac{T_{\text{baseline}}}{\text{Speed}} \right\rfloor, \quad T_{\text{saved}} = T_{\text{baseline}} - T_{\text{adjusted}}$$
+
+$$
+T_{\text{adjusted}} = \left\lfloor \frac{T_{\text{baseline}}}{\text{Speed}} \right\rfloor
+$$
+
+$$
+T_{\text{saved}} = T_{\text{baseline}} - T_{\text{adjusted}}
+$$
+
 This eliminates unnecessary backend API calls and delivers instant feedback to the user.
 
 ---
